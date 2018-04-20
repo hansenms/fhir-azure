@@ -1,0 +1,147 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "cosmosAccountName": {
+      "type": "string",
+      "defaultValue": "GENERATE"
+    },
+    "siteName": {
+      "type": "string",
+      "defaultValue": "GENERATE"
+    },
+    "hostingPlanName": {
+      "type": "string",
+      "defaultValue": "GENERATE"
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "defaultValue": "S1",
+      "metadata": {
+        "description": "The pricing tier for the hosting plan."
+      }
+    },
+    "workerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "0",
+      "metadata": {
+        "description": "The instance size of the hosting plan (small, medium, or large)."
+      }
+    },
+    "repoURL": {
+      "type": "string",
+      "defaultValue": "https://github.com/hansenms/spark.git",
+      "metadata": {
+        "description": "The URL for the GitHub repository that contains the project to deploy."
+      }
+    },
+    "branch": {
+      "type": "string",
+      "defaultValue": "dstu2/azure",
+      "metadata": {
+        "description": "The branch of the GitHub repository to use."
+      }
+    }
+  },
+  "variables": {
+    "cosmosAccountNameGen": "[concat('fhirdb',uniqueString(resourceGroup().id, deployment().name))]",
+    "hostingPlanNameGen": "[concat('fhirasp',uniqueString(resourceGroup().id, deployment().name))]",
+    "siteNameGen": "[concat('fhirserver-',uniqueString(resourceGroup().id, deployment().name))]",
+    "cosmosAccountName": "[if(equals(parameters('cosmosAccountName'),'GENERATE'),variables('cosmosAccountNameGen'),parameters('cosmosAccountName'))]",
+    "hostingPlanName": "[if(equals(parameters('hostingPlanName'),'GENERATE'),variables('hostingPlanNameGen'),parameters('hostingPlanName'))]",
+    "siteName": "[if(equals(parameters('siteName'),'GENERATE'),variables('siteNameGen'),parameters('siteName'))]"    
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-04-08",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "name": "[variables('cosmosAccountName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "MongoDB",
+      "properties": {
+        "name": "[variables('cosmosAccountName')]",
+        "databaseAccountOfferType": "Standard",
+        "locations": [
+          {
+            "locationName": "[resourceGroup().location]",
+            "failoverPriority": 0
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('sku')]",
+        "capacity": "[parameters('workerSize')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]"
+      }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('siteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[variables('hostingPlanName')]",
+        "siteConfig": {
+          "phpVersion": "off"
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('siteName'))]"
+          ],
+          "properties": {
+            "RepoUrl": "[parameters('repoURL')]",
+            "branch": "[parameters('branch')]",
+            "IsManualIntegration": true
+          }
+        },
+        {
+          "apiVersion": "2014-11-01",
+          "name": "appsettings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('siteName'))]"
+          ],
+          "properties": {
+            "MONGOLAB_URI": "[concat('mongodb://', variables('cosmosAccountName'), ':', listKeys(resourceId('Microsoft.DocumentDb/databaseAccounts', variables('cosmosAccountName')), '2015-04-08').primaryMasterKey, '@', replace(substring(reference(concat('Microsoft.DocumentDb/databaseAccounts/', variables('cosmosAccountName')), '2015-04-08').documentEndpoint,8),'443','10255'), 'spark?ssl=true&replicaSet=globaldb')]",
+            "FHIR_ENDPOINT": "[concat('https://', reference(concat('Microsoft.Web/sites/', variables('siteName')), '2015-08-01').defaultHostName, '/fhir')]"
+          }
+        }
+      ]
+    }
+  ]
+}

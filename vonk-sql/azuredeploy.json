@@ -1,0 +1,167 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sqlServerName": {
+      "type": "string",
+      "defaultValue": "GENERATE"
+    },
+    "sqlSku": {
+      "type":"string",
+      "allowedValues": [
+        "S0",
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "defaultValue": "S1"
+    },
+    "sqlAdministratorLogin": {
+      "type": "string",
+      "defaultValue": "dbadmin"
+    },
+    "sqlAdministratorPassword": {
+      "type": "securestring",
+      "defaultValue": "MyCrazyDbPassw0rd!!!"
+    },
+    "siteName": {
+      "type": "string",
+      "defaultValue": "GENERATE"
+    },
+    "hostingPlanName": {
+      "type": "string",
+      "defaultValue": "GENERATE"
+    },
+    "sku": {
+      "type": "string",
+      "allowedValues": [
+        "F1",
+        "D1",
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3",
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "defaultValue": "S1",
+      "metadata": {
+        "description": "The pricing tier for the hosting plan."
+      }
+    },
+    "workerSize": {
+      "type": "string",
+      "allowedValues": [
+        "0",
+        "1",
+        "2"
+      ],
+      "defaultValue": "0",
+      "metadata": {
+        "description": "The instance size of the hosting plan (small, medium, or large)."
+      }
+    }
+  },
+  "variables": {
+    "sqlServerNameGen": "[concat('sqlsrv',uniqueString(resourceGroup().id, deployment().name))]",
+    "hostingPlanNameGen": "[concat('conkasp',uniqueString(resourceGroup().id, deployment().name))]",
+    "siteNameGen": "[concat('vonkserver-',uniqueString(resourceGroup().id, deployment().name))]",
+    "sqlServerName": "[if(equals(parameters('sqlServerName'),'GENERATE'),variables('sqlServerNameGen'),parameters('sqlServerName'))]",
+    "databaseName": "vonkdb",
+    "hostingPlanName": "[if(equals(parameters('hostingPlanName'),'GENERATE'),variables('hostingPlanNameGen'),parameters('hostingPlanName'))]",
+    "siteName": "[if(equals(parameters('siteName'),'GENERATE'),variables('siteNameGen'),parameters('siteName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2014-04-01",
+      "name": "[variables('sqlServerName')]",
+      "type": "Microsoft.Sql/servers",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "administratorLogin": "[parameters('sqlAdministratorLogin')]",
+        "administratorLoginPassword": "[parameters('sqlAdministratorPassword')]",
+        "version": "12.0"
+      },
+      "resources": [
+        {
+          "name": "[variables('databaseName')]",
+          "type": "databases",
+          "location": "[resourceGroup().location]",
+          "apiVersion": "2015-01-01",
+          "dependsOn": [
+            "[variables('sqlServerName')]"
+          ],
+          "properties": {
+            "edition": "Standard",
+            "collation": "SQL_Latin1_General_CP1_CI_AS",
+            "requestedServiceObjectiveName": "[parameters('sqlSku')]"
+          }
+        },
+        {
+          "type": "firewallrules",
+          "apiVersion": "2014-04-01",
+          "dependsOn": [
+            "[variables('sqlServerName')]"
+          ],
+          "location": "[resourceGroup().location]",
+          "name": "AllowAllWindowsAzureIps",
+          "properties": {
+            "endIpAddress": "0.0.0.0",
+            "startIpAddress": "0.0.0.0"
+          }
+        }
+      ]
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('sku')]",
+        "capacity": "[parameters('workerSize')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]"
+      }
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('siteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[variables('hostingPlanName')]",
+        "siteConfig": {
+          "phpVersion": "off"
+        }
+      },
+      "resources": [
+        {
+          "apiVersion": "2014-11-01",
+          "name": "appsettings",
+          "type": "config",
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('siteName'))]"
+          ],
+          "properties": {
+            "VONK_Administration:Repository": "SQL",
+            "VONK_Administration:SqlDbOptions:ConnectionString": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';Persist Security Info=False;User Id=', parameters('sqlAdministratorLogin'), ';Password=', parameters('sqlAdministratorPassword'), ';MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
+            "VONK_Administration:Security:OperationsToBeSecured:0": "reset",
+            "VONK_Administration:Security:OperationsToBeSecured:1": "preload",
+            "VONK_Administration:Security:OperationsToBeSecured:2": "reindex",
+            "VONK_Repository": "SQL",
+            "VONK_SqlDbOptions:ConnectionString": "[concat('Data Source=tcp:', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';Persist Security Info=False;User Id=', parameters('sqlAdministratorLogin'), ';Password=', parameters('sqlAdministratorPassword'), ';MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]"
+          }
+        }
+      ]
+    }
+  ]
+}
