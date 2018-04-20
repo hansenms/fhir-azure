@@ -13,6 +13,6 @@ The templates use all Platform as a Service (PaaS) services with [Azure Web App]
 
 All templates automate the deployment of required resources. The Spark template also deploys the application code. The Vonk server deployment requires a couple of manual steps to download the application binaries and a trial license since this is a commercial product. See instructions for the individual templates.
 
-Please note that the deployment of Vonk server with SQL backend is the only configuration mentioned as supported in the [documentation for the Vonk server](https://simplifier.net/vonk). 
+Please note that the deployment of Vonk server with SQL backend is the only configuration mentioned as supported in the [documentation for the Vonk server](https://simplifier.net/vonk). So if you are considering any of these deployments for production, start with that one. 
 
 
