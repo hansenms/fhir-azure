@@ -1,5 +1,5 @@
-Firely FHIR Servers on Azure
------------------------------
+FHIR Servers on Azure
+---------------------
 
 [FHIR](hl7.org/fhir) Fast Healthcare Interoperability Resources – is a next generation standards framework created by HL7. It is used for transfer of clinical and administrative data between software applications used is by various healthcare providers. 
 
