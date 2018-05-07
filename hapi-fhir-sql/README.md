@@ -25,10 +25,10 @@ mvn install
 After deployment visit the web app (e.g., `https://WEBSITENAME.azurewebsites.com/hapi-fhir-jpaserver-example/`) with a browser to make sure it is up and running.
 
 
-<a href="https://transmogrify.azurewebsites.net/vonk-sql/azuredeploy.json" target="_blank">
+<a href="https://transmogrify.azurewebsites.net/hapi-fhir-sql/azuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-<a href="https://transmogrify.azurewebsites.net/vonk-sql/azuredeploy.json?environment=gov" target="_blank">
+<a href="https://transmogrify.azurewebsites.net/hapi-fhir-sql/azuredeploy.json?environment=gov" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"
 </a>
