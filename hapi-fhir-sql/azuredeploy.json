@@ -73,7 +73,8 @@
     "sqlServerName": "[if(equals(parameters('sqlServerName'),'GENERATE'),variables('sqlServerNameGen'),parameters('sqlServerName'))]",
     "databaseName": "hapidb",
     "hostingPlanName": "[if(equals(parameters('hostingPlanName'),'GENERATE'),variables('hostingPlanNameGen'),parameters('hostingPlanName'))]",
-    "siteName": "[if(equals(parameters('siteName'),'GENERATE'),variables('siteNameGen'),parameters('siteName'))]"
+    "siteName": "[if(equals(parameters('siteName'),'GENERATE'),variables('siteNameGen'),parameters('siteName'))]",
+    "hostNameInCertificate": "[if(contains(resourceGroup().location,'usgov'),'*.database.usgovcloudapi.net','*.database.windows.net')]"
   },
   "resources": [
     {
@@ -155,7 +156,7 @@
           "properties": {
               "javaVersion": "1.8",
               "javaContainer": "TOMCAT",
-              "javaContainerVersion": "9.0"
+              "javaContainerVersion": "7.0.50"
           }
         },
         {
@@ -166,8 +167,8 @@
               "[resourceId('Microsoft.Web/sites', variables('siteName'))]"
           ],
           "properties": {
-             "HAPIDBConnString": {
-                "value": "[concat('jdbc:sqlserver://', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ':1433;database=', variables('databaseName'), ';user=', parameters('sqlAdministratorLogin'),'@', variables('sqlserverName'), ';password=', parameters('sqlAdministratorPassword'), ';encrypt=true;trustServerCertificate=false;loginTimeout=30;')]",
+             "SQLCONNSTR_HAPIDBConnString": {
+                "value": "[concat('jdbc:sqlserver://', reference(concat('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ':1433;database=', variables('databaseName'), ';user=', parameters('sqlAdministratorLogin'),'@', variables('sqlserverName'), ';password=', parameters('sqlAdministratorPassword'), ';encrypt=true;trustServerCertificate=false;hostNameInCertificate=', variables('hostNameInCertificate'), ';loginTimeout=30;')]",
                 "type":"SQLAzure"
              }
           }
