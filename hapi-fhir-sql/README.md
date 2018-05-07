@@ -22,7 +22,7 @@ mvn install
 * Copy the `hapi-fhir-jpaserver-example.war` (from the `target` folder) file to the `D:\home\site\wwwroot\webapps` folder of the Azure Web App (e.g., using the Kudu console)
 
 
-After deployment visit the web app (e.g., `https://WEBSITENAME.azurewebsites.com//hapi-fhir-jpaserver-example/`) with a browser to make sure it is up and running.
+After deployment visit the web app (e.g., `https://WEBSITENAME.azurewebsites.com/hapi-fhir-jpaserver-example/`) with a browser to make sure it is up and running.
 
 
 <a href="https://transmogrify.azurewebsites.net/vonk-sql/azuredeploy.json" target="_blank">
