@@ -5,7 +5,7 @@ FHIR Servers on Azure
 
 In this repository, you will find templates for setting up FHIR servers from [Firely](https://fire.ly) and [HAPI FHIR](http://hapifhir.io/).
 
-Firely has the open source [Spark](https://github.com/FirelyTeam/spark) server, which supports Draft Standard for Trial Use 2 (DSTU2) and they also have a commercial server called [vonk](https://fire.ly/vonk), which supports Standard for Trial Use 3 (STU3). The servers and underlying libraries are written in .NET and can use MongoDb as a backend store. Vonk also supports SQL server as the backend store. 
+Firely has the open source [Spark](https://github.com/FirelyTeam/spark) server, which supports Draft Standard for Trial Use 2 (DSTU2) and they also have a commercial server called [vonk](https://fire.ly/vonk), which supports Standard for Trial Use 3 (STU3). The servers and underlying libraries are written in .NET and can use Cosmos DB (Mongo API) as a backend store. Vonk also supports SQL server as the backend store. 
 
 [HAPI FHIR](http://hapifhir.io/) is a library for adding FHIR support to your applications. It is writtent in Java and licensed under the Apache Software License, version 2. The project includes an example server, which I have [modified](https://github.com/hansenms/hapi-fhir/tree/azuresql) to use Azure SQL as the backend database. 
 
