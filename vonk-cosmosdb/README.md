@@ -3,7 +3,7 @@ Firely Vonk (commercial) FHIR Server in Azure with Cosmos DB Backend
 
 This template deploys the infrastructure for running the [Firely Vonk](https://fire.ly/vonk) FHIR servce in an Azure Web App with an Azure Cosmos DB (MongoDb API) backend. The Web App will be configured with all necessary connection strings, etc. 
 
-*NOTE* This configuration is not considered supported as per the Vonk documentation and should be considered for experimentation purposes only.
+This configuration is supported as of [release 0.6.5.0](http://docs.simplifier.net/vonk/releasenotes.html). There are some limitations, which you can read about [here](http://docs.simplifier.net/vonk/configuration/db_cosmosdb.html#configure-cosmosdb).
 
 After deploying the infratructure, you need to download the binaries from [https://simplifier.net/vonk](https://simplifier.net/vonk). You will need to register. This is also where you can get a trial license if you don't have a license already. 
 

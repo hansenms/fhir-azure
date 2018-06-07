@@ -18,7 +18,7 @@ The templates use all Platform as a Service (PaaS) services with [Azure Web App]
 
 All templates automate the deployment of required resources. The Spark template also deploys the application code. 
 
-The Vonk server deployment requires a couple of manual steps to download the application binaries and a trial license since this is a commercial product. See instructions for the individual templates. Please note that the deployment of Vonk server with SQL backend is the only configuration mentioned as supported in the [documentation for the Vonk server](https://simplifier.net/vonk). So if you are considering any of these deployments for production, start with that one. 
+The Vonk server deployment requires a couple of manual steps to download the application binaries and a trial license since this is a commercial product. See instructions for the individual templates. Note that [Firely Vonk now officially supports Cosmos DB (Mongo API)](http://docs.simplifier.net/vonk/configuration/db_cosmosdb.html#configure-cosmosdb). 
 
 The HAPI FHIR Server needs a `*.war` file for deployment. Please [see instructions](hapi-fhir-sql/). 
 
