@@ -8,16 +8,22 @@ After deploying the infratructure, you need to generate a `*.war` file for deplo
 * Install [Java SDK 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 * Download [Apache Maven](https://maven.apache.org/download.cgi)
 * [Install Maven](https://maven.apache.org/install)
-* Get the source code:
-```
-git clone https://github.com/hansenms/hapi-fhir.git
+* Get the source code and patch:
+```bash
+git clone https://github.com/jamesagnew/hapi-fhir.git
 cd hapi-fhir
-git checkout azuresql
-cd hapi-fhir-jpaserver-example
+
+#Select the version you want, e.g.:
+git checkout -b v3.4.0 v3.4.0
+
+#Get and apply patch
+wget https://raw.githubusercontent.com/hansenms/fhir-azure/master/hapi-fhir-sql/0001-Using-Azure-SQL.patch
+git am 0001-Using-Azure-SQL.patch
 ```
 * Build:
-```
-mvn install
+```bash
+cd hapi-fhir-jpaserver-example
+mvn package
 ```
 * Copy the `hapi-fhir-jpaserver-example.war` (from the `target` folder) file to the `D:\home\site\wwwroot\webapps` folder of the Azure Web App (e.g., using the Kudu console)
 

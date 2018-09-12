@@ -1,0 +1,72 @@
+From f41dc1325f5705d5538b87aa0ebcd82a23982ee7 Mon Sep 17 00:00:00 2001
+From: Michael Hansen <mihansen@microsoft.com>
+Date: Tue, 11 Sep 2018 14:17:36 -0400
+Subject: [PATCH] Using Azure SQL
+
+---
+ hapi-fhir-jpaserver-example/pom.xml                          |  7 +++++++
+ .../src/main/java/ca/uhn/fhir/jpa/demo/FhirServerConfig.java | 12 +++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
+
+diff --git a/hapi-fhir-jpaserver-example/pom.xml b/hapi-fhir-jpaserver-example/pom.xml
+index 0915cc1960..c94780c558 100644
+--- a/hapi-fhir-jpaserver-example/pom.xml
++++ b/hapi-fhir-jpaserver-example/pom.xml
+@@ -45,6 +45,13 @@
+ 			<artifactId>mysql-connector-java</artifactId>
+ 			<version>6.0.5</version>
+ 		</dependency>
++
++		<dependency>
++			<groupId>com.microsoft.sqlserver</groupId>
++			<artifactId>mssql-jdbc</artifactId>
++			<version>6.4.0.jre8</version>
++		</dependency>
++
+ 		<!--
+ 		<dependency>
+ 			<groupId>org.aspectj</groupId>
+diff --git a/hapi-fhir-jpaserver-example/src/main/java/ca/uhn/fhir/jpa/demo/FhirServerConfig.java b/hapi-fhir-jpaserver-example/src/main/java/ca/uhn/fhir/jpa/demo/FhirServerConfig.java
+index 8a2b429b2f..899b55bfca 100644
+--- a/hapi-fhir-jpaserver-example/src/main/java/ca/uhn/fhir/jpa/demo/FhirServerConfig.java
++++ b/hapi-fhir-jpaserver-example/src/main/java/ca/uhn/fhir/jpa/demo/FhirServerConfig.java
+@@ -5,6 +5,9 @@ import java.util.Properties;
+ import javax.persistence.EntityManagerFactory;
+ import javax.sql.DataSource;
+ 
++import java.sql.*;
++import com.microsoft.sqlserver.jdbc.*;
++
+ import ca.uhn.fhir.jpa.search.LuceneSearchMappingFactory;
+ import ca.uhn.fhir.jpa.util.DerbyTenSevenHapiFhirDialect;
+ import org.apache.commons.dbcp2.BasicDataSource;
+@@ -50,10 +53,17 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
+ 	@Bean(destroyMethod = "close")
+ 	public DataSource dataSource() {
+ 		BasicDataSource retVal = new BasicDataSource();
++
++		retVal.setDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());
++		String conString = System.getenv("SQLAZURECONNSTR_SQLCONNSTR_HAPIDBConnString");
++		retVal.setUrl(conString);
++
++		/*
+ 		retVal.setDriver(new org.apache.derby.jdbc.EmbeddedDriver());
+ 		retVal.setUrl("jdbc:derby:directory:target/jpaserver_derby_files;create=true");
+ 		retVal.setUsername("");
+ 		retVal.setPassword("");
++		*/
+ 		return retVal;
+ 	}
+ 
+@@ -69,7 +79,7 @@ public class FhirServerConfig extends BaseJavaConfigDstu3 {
+ 
+ 	private Properties jpaProperties() {
+ 		Properties extraProperties = new Properties();
+-		extraProperties.put("hibernate.dialect", DerbyTenSevenHapiFhirDialect.class.getName());
++		extraProperties.put("hibernate.dialect", org.hibernate.dialect.SQLServerDialect.class.getName());
+ 		extraProperties.put("hibernate.format_sql", "true");
+ 		extraProperties.put("hibernate.show_sql", "false");
+ 		extraProperties.put("hibernate.hbm2ddl.auto", "update");
+-- 
+2.15.1.windows.2
+
